@@ -1,0 +1,115 @@
+---
+title: "RR_Peer_Assignment1"
+author: "Chris Conner"
+date: "Wednesday, August 13, 2014"
+output: html_document
+---
+
+
+
+###Import data from internet and unzip using unz() function.
+
+```{r, import_process, echo=TRUE, message=FALSE}
+options(stringsAsFactors =  F)
+path <- 'http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip'
+temp <- tempfile()
+download.file(path,temp)
+data <- read.csv(unz(temp, "activity.csv"))
+unlink(temp)
+
+library(data.table)
+library(zoo)
+
+data$date <- as.Date(data$date) # convert to date
+```
+
+###Q1) What is mean total number of steps taken per day?
+
+NOTE: For this part of the assignment, you can ignore the missing values in the dataset.
+```{r, "Q1a remove NA"}
+data.no.na <- na.omit(data)# remove(ignore) NAs
+```
+1. Make a histogram of the total number of steps taken each day.
+2. Calculate and report the mean and median total number of steps taken per day (I will include mean and median in the plot).
+```{r, Q1b)}
+dt1 <- data.table(data.no.na)
+dt2 <- dt1[, list( steps.day = sum(steps)), by=list(date)]
+hist(dt2$steps, breaks=20, xlab="Steps/day", main="Histogram of Steps per Day")
+mean.spd1 <- round(mean(dt2$steps), 2)
+median.spd1 <- round(median(dt2$steps), 2)
+legend("topright", title = "Mean and Median" ,legend=c(paste("Mean Steps/Day =", mean.spd1), paste("Median Steps/Day =", median.spd1)), bty='n')
+```
+
+
+###Q2) What is the average daily activity pattern?
+1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
+```{r, maxinterval, echo=TRUE}
+dt2 <- dt1[, list( mean.steps.d = mean(steps, na.rm=T)), by=list(interval)]
+df1 <- data.frame(dt2)
+df1 <- df1[ order(df1$interval),]
+plot(mean.steps.d~interval, data=df1, type="l", ylab="Mean Steps per Day", xlab="Daily 5 Min. Interval", main="Mean Steps Per Day by 5 Min. Interval")
+activeint <- df1$interval[which.max(df1$mean.steps.d)]##calculate most active 5 min interval
+abline(v = activeint, col='red', lwd=3, lty=2)
+legend("topright", title = "Most Active 5 Min Interval:" ,legend=c(paste(activeint)), pch = NA, lty = 2, lwd=3, col='red', bty='n')
+```
+
+###Q3)Imputing missing values
+1.Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+```{r, estmissing, echo=TRUE}
+sum(is.na(data$steps))##  number of missing values
+```
+
+2.Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+```{r, imputeNA, cache=TRUE}
+## somewhat computation intensive so cache this
+data$steps.impute <- data$steps # create var for imputed values
+dt1 <- data.table(data)
+dt2 <- dt1[, list( mean.steps.d = mean(steps, na.rm=TRUE)), by=list(interval)]
+df1 <- data.frame(dt2)
+for(i in 1:length(data$steps.impute)){## replace withe mean of same interval over entire data set
+    if(is.na(data$steps.impute[i]))  
+      data$steps.impute[i] <- df1$mean.steps.d[match(data$interval[i], df1$interval)] 
+}
+```
+
+3.Create a new dataset that is equal to the original dataset but with the missing data filled in.
+```{r, newdata}
+newdata <- data[c("steps.impute", "date", "interval")]
+```
+
+4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+```{r, imputedhist}
+dt1 <- data.table(newdata)
+dt2 <- dt1[, list( steps.day = sum(steps.impute)), by=list(date)]
+hist(dt2$steps, breaks=20, xlab="Steps/day", main="Histogram of Steps per Day (imputed data)")
+mean.spd2 <- round(mean(dt2$steps), 2)
+median.spd2 <- round(median(dt2$steps), 2)
+legend("topright", title = "Mean and Median" ,legend=c(paste("Mean Steps/Day =", mean.spd2), paste("Median Steps/Day =", median.spd2)), bty='n')
+
+dt1 <- data.table(data)
+dt3 <- dt1[, list( steps.day = sum(steps.impute)), by=list(date)]
+t.test(dt2$steps.day, dt3$steps.day)##  just because...
+
+```
+
+The mean steps per day on the original (non-imputed) data (`r mean.spd1`) does not appear to differ from the mean and median using my imputed data (`r mean.spd2`).   
+
+###Q4)Are there differences in activity patterns between weekdays and weekends?
+1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was creating using simulated data:
+
+```{r}
+newdata$dayofwk <- as.POSIXlt(newdata$date)$wday
+newdata$weekday.end <- ifelse( newdata$dayofwk  ==0|newdata$dayofwk  ==6, "weekend", "weekday")
+dt1 <- data.table(newdata)##using my imputed data set here
+dt2 <- dt1[ , list( mean.steps.d = mean(steps.impute)), by=list(interval, weekday.end)]
+df1 <- data.frame(dt2)
+df1 <- df1[order(df1$weekday.end, df1$interval), ]
+
+library(ggplot2)
+p <- ggplot(data=df1, aes(x=interval, y=mean.steps.d)) + geom_line() + geom_point()
+p + facet_grid(weekday.end ~.)
+```
+
+

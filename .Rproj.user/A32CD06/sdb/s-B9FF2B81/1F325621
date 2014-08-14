@@ -1,0 +1,17 @@
+{
+    "contents" : "\n\n## import data\n\npath <- 'http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip'\ntemp <- tempfile()\ndownload.file(path,temp)\ndata <- read.csv(unz(temp, \"activity.csv\"))\nunlink(temp)\n\n",
+    "created" : 1407994089793.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3998643803",
+    "id" : "1F325621",
+    "lastKnownWriteTime" : 1407994398,
+    "path" : "~/GitHub/Jhop_RR_Peer_Assessment_1/Assessment1_code.R",
+    "project_path" : "Assessment1_code.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

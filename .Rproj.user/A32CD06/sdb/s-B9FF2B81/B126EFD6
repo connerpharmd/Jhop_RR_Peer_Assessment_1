@@ -1,0 +1,22 @@
+{
+    "contents" : "",
+    "created" : 1408039626397.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B126EFD6",
+    "lastKnownWriteTime" : 32370120545140837,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "caption" : "dt2",
+        "contentUrl" : "content?title=dt2&file=2313ec0dbd1448b8bee9f33584995659.htm",
+        "displayedObservations" : 2,
+        "displayedVariables" : 2,
+        "totalObservations" : 2,
+        "variables" : 2
+    },
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

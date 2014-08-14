@@ -1,0 +1,22 @@
+{
+    "contents" : "",
+    "created" : 1407995473693.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "A53BCB44",
+    "lastKnownWriteTime" : 32370120537931777,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "caption" : "data.no.na",
+        "contentUrl" : "content?title=data.no.na&file=2912b8e29d0143fbabc228a9b4fffe5f.htm",
+        "displayedObservations" : 1000,
+        "displayedVariables" : 4,
+        "totalObservations" : 15264,
+        "variables" : 3
+    },
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}
